@@ -14,4 +14,4 @@ class MarcaSchema(BaseModel):
         orm_mode = True
         
 class MarcaSchemaCarros(MarcaSchema):
-    carros: Optional[List[CarSchema]]
+    cars: Optional[List[CarSchema]]

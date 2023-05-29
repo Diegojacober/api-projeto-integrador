@@ -8,7 +8,8 @@ class CarSchema(BaseModel):
     description: Optional[str]
     combustivel: Optional[str]
     cambio: Optional[str]
-    ano: Optional[int]
+    ano: Optional[str]
+    url_image: Optional[str]
     categoria_id: Optional[int]
     marca_id: Optional[int]
     

@@ -9,9 +9,8 @@ class CategoriaSchema(BaseModel):
     nome: Optional[str]
     
     
-    
     class Config:
         orm_mode = True
         
 class CategoriaSchemaACarros(CategoriaSchema):
-    carros: Optional[List[CarSchema]]
+    carsm: Optional[List[CarSchema]]

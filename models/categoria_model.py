@@ -8,11 +8,11 @@ class CategoriaModel(settings.DB_BASEMODEL):
     
     id = Column(Integer, primary_key=True, autoincrement=True)
     nome = Column(String(256), nullable=True)
-    carros = relationship(
+    carsm = relationship(
         "CarModel",
         cascade='all, delete-orphan',
-        back_populates="carros",
         uselist=True,
-        lazy="joined"
+        lazy="joined",
+        back_populates='categoria_mae'
     )
     

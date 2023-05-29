@@ -18,6 +18,6 @@ class UserSchemaCreate(UserSchemaBase):
     
 
 class UserSchemaUp(UserSchemaBase):
-    nome: Optional[str]
+    name: Optional[str]
     email: Optional[EmailStr]
     password: Optional[str]

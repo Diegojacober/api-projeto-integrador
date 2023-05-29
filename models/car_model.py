@@ -1,7 +1,9 @@
-from sqlalchemy import Column, Integer, ForeignKey, String, Text
+from sqlalchemy import Column, Integer, ForeignKey, String, Float
 from sqlalchemy.orm import relationship
 
 from core.configs import settings
+from models.marca_model import MarcaModel
+from models.categoria_model import CategoriaModel
 
 class CarModel(settings.DB_BASEMODEL):
     __tablename__ = 'cars'
@@ -11,12 +13,16 @@ class CarModel(settings.DB_BASEMODEL):
     description = Column(String(256))
     combustivel = Column(String(256))
     cambio = Column(String(256))
-    ano = Column(Integer)
-    categoria_id = Column(Integer, ForeignKey('categorias.id'))
+    ano = Column(String(4))
+    url_image = Column(String(256))
+    valor = Column(Float(2))
     marca_id = Column(Integer, ForeignKey('marcas.id'))
-    categoria = relationship("CategoriaModel",
-                           back_populates='cars',
+    categoria_id = Column(Integer, ForeignKey('categorias.id'))
+    
+    marca_responsavel = relationship("MarcaModel",
+                            back_populates='cars',
                            lazy='joined')
-    marca = relationship("MarcaModel",
-                           back_populates='cars',
+    
+    categoria_mae = relationship("CategoriaModel",
+                            back_populates='carsm',
                            lazy='joined')
