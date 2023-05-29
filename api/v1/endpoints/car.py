@@ -16,7 +16,7 @@ router = APIRouter()
 
 #POST Car
 @router.post('/', response_model=CarSchema, status_code=status.HTTP_201_CREATED)
-async def create_post(car: CarSchema, usuario_logado: UserModel = Depends(get_current_user), db: AsyncSession = Depends(get_session)):
+async def create_car(car: CarSchema, logged_user: UserModel = Depends(get_current_user), db: AsyncSession = Depends(get_session)):
     new_car: CarModel = CarModel(
        name = car.name,
         description = car.description,
@@ -32,81 +32,86 @@ async def create_post(car: CarSchema, usuario_logado: UserModel = Depends(get_cu
 
 # GET cars
 router.get('/', response_model=List[CarSchema])
-async def get_artgos(db: AsyncSession = Depends(get_session)):
+async def get_cars(db: AsyncSession = Depends(get_session)):
     async with db as session:
-        query = select(ArtigoModel)
+        query = select(CarModel)
         result = await session.execute(query)
-        artigos: List[ArtigoModel] = result.scalars().unique().all()
+        cars: List[CarModel] = result.scalars().unique().all()
         
-        return artigos
+        return cars
     
 
-# GET artigo
-router.get('/{artigo_id}', response_model=ArtigoSchema, status_code=status.HTTP_200_OK)
-async def get_artigo(artigo_id: int, db: AsyncSession = Depends(get_session)):
+# GET car
+router.get('/{car_id}', response_model=CarSchema, status_code=status.HTTP_200_OK)
+async def get_artigo(car_id: int, db: AsyncSession = Depends(get_session)):
     async with db as session:
-        query = select(ArtigoModel).filter(ArtigoModel == artigo_id)
+        query = select(CarModel).filter(CarModel == car_id)
         result = await session.execute(query)
-        artigo: ArtigoModel = result.scalars().unique().one_or_none()
+        car: CarModel = result.scalars().unique().one_or_none()
         
-        if artigo:
-            return artigo
+        if car:
+            return car
         else:
-            raise HTTPException(detail='Artigo não encontrado',
+            raise HTTPException(detail='Car not found',
                                 status_code=status.HTTP_404_NOT_FOUND)
             
 
-# PUT artigo
-router.put('/{artigo_id}', response_model=ArtigoSchema, status_code=status.HTTP_202_ACCEPTED)
-async def get_artigo(artigo_id: int, artigo: ArtigoSchema , db: AsyncSession = Depends(get_session), logged_user: UserModel = Depends(get_current_user)):
+# PUT car
+router.put('/{car_id}', response_model=CarSchema, status_code=status.HTTP_202_ACCEPTED)
+async def get_artigo(car_id: int, car: CarSchema , db: AsyncSession = Depends(get_session), logged_user: UserModel = Depends(get_current_user)):
     async with db as session:
-        query = select(ArtigoModel).filter(ArtigoModel == artigo_id)
-        print(f"O usuário {logged_user.id} - {logged_user.nome} modificou o artigo {artigo_id}")
+        query = select(CarModel).filter(CarModel == car_id)
+        print(f"O usuário {logged_user.id} - {logged_user.nome} modificou o artigo {car_id}")
         result = await session.execute(query)
-        artigo_up: ArtigoModel = result.scalars().unique().one_or_none()
+        car_up: CarModel = result.scalars().unique().one_or_none()
         
-        if artigo_up:
-            if artigo.titulo:
-                artigo_up.titulo = artigo.titulo
+        if car_up:
+            if car.name:
+                car_up.name = car.titulo
             
-            if artigo.descricao:
-                artigo_up.descricao = artigo.descricao
+            if car.description:
+                car_up.description = car.description
                 
-            if artigo.url_fonte:
-                artigo_up.url_font = artigo.url_fonte
-
-            if logged_user.id != artigo_up.usuario_id:
-                artigo_up.usuario_id = logged_user.id
+            if car.ano:
+                car_up.ano = car.ano
                 
+            if car.combustivel:
+                car_up.combustivel = car.combustivel
+                
+            if car.cambio:
+                car_up.cambio = car.cambio
+                
+            if car.categoria_id:
+                car_up.categoria_id = car.categoria_id
+                
+            if car.marca_id:
+                car_up.marca_id = car.marca_id
+     
             await session.commit()
             
-            return artigo_up
+            return car_up
         else:
-            raise HTTPException(detail='Artigo não encontrado',
+            raise HTTPException(detail='Car not found',
                                 status_code=status.HTTP_404_NOT_FOUND)
 
 
-# DELETE artigo
-router.delete('/{artigo_id}', status_code=status.HTTP_204_NO_CONTENT)
-async def get_artigo(artigo_id: int, db: AsyncSession = Depends(get_session), logged_user: UserModel = Depends(get_current_user)):
+# DELETE car
+router.delete('/{car_id}', status_code=status.HTTP_204_NO_CONTENT)
+async def get_artigo(car_id: int, db: AsyncSession = Depends(get_session), logged_user: UserModel = Depends(get_current_user)):
 
-    if logged_user.is_admin: 
-        async with db as session:
-            query = select(ArtigoModel).filter(ArtigoModel == artigo_id)
-            print(f"O usuário {logged_user.id} - {logged_user.nome} deletou o artigo {artigo_id}")
-            result = await session.execute(query)
-            artigo_del: ArtigoModel = result.scalars().unique().one_or_none()
+    async with db as session:
+        query = select(CarModel).filter(CarModel == car_id)
+        print(f"O usuário {logged_user.id} - {logged_user.nome} deletou o carro {car_id}")
+        result = await session.execute(query)
+        car_del: CarModel = result.scalars().unique().one_or_none()
+        
+        
+        if car_del:
+            await session.delete(car_del)
+            await session.commit()
             
-            
-            if artigo_del:
-                await session.delete(artigo_del)
-                await session.commit()
-                
-                return Response(status_code=status.HTTP_204_NO_CONTENT)
-            else:
-                raise HTTPException(detail='Artigo não encontrado',
-                                    status_code=status.HTTP_404_NOT_FOUND)
-    else:
-        raise HTTPException(detail='O usuário não tem permissão para deletar',
-                            status_code=status.HTTP_403_FORBIDDEN)
+            return Response(status_code=status.HTTP_204_NO_CONTENT)
+        else:
+            raise HTTPException(detail='Carro não encontrado',
+                                status_code=status.HTTP_404_NOT_FOUND)
 
