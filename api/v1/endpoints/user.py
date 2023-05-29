@@ -8,12 +8,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from sqlalchemy.exc import IntegrityError
 
-from models.car_model import ArtigoModel 
 from models.user_model import UserModel
 
-from schemas.car_schema import ArtigoSchema
 
-from schemas.user_schema import UserSchemaArtigos
 from schemas.user_schema import UserSchemaBase
 from schemas.user_schema import UserSchemaCreate
 from schemas.user_schema import UserSchemaUp
@@ -65,14 +62,14 @@ async def get_users(db: AsyncSession = Depends(get_session), logged_user: UserMo
         raise HTTPException(detail='Apenas administradores podem ter essa informação',
                             status_code=status.HTTP_401_UNAUTHORIZED)
         
-@router.get('/{user_id}', response_model=UserSchemaArtigos, status_code=status.HTTP_200_OK)
+@router.get('/{user_id}', response_model=UserSchemaBase, status_code=status.HTTP_200_OK)
 async def get_user(user_id: int, db: AsyncSession = Depends(get_session), logged_user: UserModel = Depends(get_current_user)):
 
-    if user_id == logged_user.id or logged_user.is_admin:
+    if user_id == logged_user.id:
         async with db as session:
             query = select(UserModel).filter(UserModel.id == user_id)
             results = await session.execute(query)
-            user: UserSchemaArtigos = results.scalars().unique().one_or_none()
+            user: UserSchemaBase = results.scalars().unique().one_or_none()
             
             if user:
                 return user
@@ -88,7 +85,7 @@ async def get_user(user_id: int, db: AsyncSession = Depends(get_session), logged
 @router.put('/{user_id}', response_model=UserSchemaBase, status_code=status.HTTP_202_ACCEPTED)
 async def put_user(user_id: int,user: UserSchemaUp, db: AsyncSession = Depends(get_session), logged_user: UserModel = Depends(get_current_user)):
 
-    if user_id == logged_user.id or logged_user.is_admin:
+    if user_id == logged_user.id:
         async with db as session:
             query = select(UserModel).filter(UserModel.id == user_id)
             results = await session.execute(query)
@@ -98,18 +95,12 @@ async def put_user(user_id: int,user: UserSchemaUp, db: AsyncSession = Depends(g
                 if user.nome:
                     user_up.nome = user.nome
                 
-                if user.sobrenome:
+                if user.email:
                     user_up.sobrenome = user.sobrenome
                     
-                if user.email:
+                if user.password:
                     user_up.email = user.email
                     
-                if user.is_admin:
-                    user_up.is_admin = user.is_admin
-                
-                if user.senha:
-                    user_up.senha = generate_hash_pass(user.senha)
-                
                 await session.commit()
                 
                 return user_up
@@ -126,7 +117,7 @@ async def put_user(user_id: int,user: UserSchemaUp, db: AsyncSession = Depends(g
 @router.delete('/{user_id}', status_code=status.HTTP_204_NO_CONTENT)
 async def delete_user(user_id: int, db: AsyncSession = Depends(get_session), logged_user: UserModel = Depends(get_current_user)):
 
-    if user_id == logged_user.id or logged_user.is_admin:
+    if user_id == logged_user.id:
         async with db as session:
             query = select(UserModel).filter(UserModel.id == user_id)
             results = await session.execute(query)

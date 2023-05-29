@@ -5,31 +5,33 @@ from fastapi import APIRouter, status, Depends, HTTPException, Response
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 
-from models.car_model import ArtigoModel 
+from models.car_model import CarModel 
 from models.user_model import UserModel
 
-from schemas.car_schema import ArtigoSchema
+from schemas.car_schema import CarSchema
 
 from core.deps import get_session, get_current_user
 
 router = APIRouter()
 
-#POST Artigo
-@router.post('/', response_model=ArtigoSchema, status_code=status.HTTP_201_CREATED)
-async def create_post(artigo: ArtigoSchema, usuario_logado: UserModel = Depends(get_current_user), db: AsyncSession = Depends(get_session)):
-    novo_artigo: ArtigoModel = ArtigoModel(
-        titulo=artigo.titulo,
-        descricao=artigo.descricao,
-        url_fonte=artigo.url_fonte,
-        usuario_id=usuario_logado.id
+#POST Car
+@router.post('/', response_model=CarSchema, status_code=status.HTTP_201_CREATED)
+async def create_post(car: CarSchema, usuario_logado: UserModel = Depends(get_current_user), db: AsyncSession = Depends(get_session)):
+    new_car: CarModel = CarModel(
+       name = car.name,
+        description = car.description,
+        combustivel =car.combustivel,
+        cambio = car.cambio,
+        ano = car.ano,
+        categoria_id = car.categoria_id
     )
     
-    db.add(novo_artigo)
+    db.add(new_car)
     await db.commit()
-    return novo_artigo
+    return new_car
 
-# GET artigos
-router.get('/', response_model=List[ArtigoSchema])
+# GET cars
+router.get('/', response_model=List[CarSchema])
 async def get_artgos(db: AsyncSession = Depends(get_session)):
     async with db as session:
         query = select(ArtigoModel)

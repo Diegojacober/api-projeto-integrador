@@ -13,6 +13,10 @@ class CarModel(settings.DB_BASEMODEL):
     cambio = Column(String(256))
     ano = Column(Integer)
     categoria_id = Column(Integer, ForeignKey('categorias.id'))
+    marca_id = Column(Integer, ForeignKey('marcas.id'))
     categoria = relationship("CategoriaModel",
+                           back_populates='cars',
+                           lazy='joined')
+    marca = relationship("MarcaModel",
                            back_populates='cars',
                            lazy='joined')

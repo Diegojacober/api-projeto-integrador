@@ -10,6 +10,7 @@ class CarSchema(BaseModel):
     cambio: Optional[str]
     ano: Optional[int]
     categoria_id: Optional[int]
+    marca_id: Optional[int]
     
     
     class Config:
