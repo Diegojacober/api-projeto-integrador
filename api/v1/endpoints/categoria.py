@@ -17,7 +17,7 @@ router = APIRouter()
 
 
 @router.get('/{categoria_id}', response_model=CategoriaSchemaACarros, status_code=status.HTTP_200_OK)
-async def get_user(categoria_id: int, db: AsyncSession = Depends(get_session), logged_user: UserModel = Depends(get_current_user)):
+async def get_categoria(categoria_id: int, db: AsyncSession = Depends(get_session), logged_user: UserModel = Depends(get_current_user)):
 
    
     async with db as session:

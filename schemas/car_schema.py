@@ -14,6 +14,9 @@ class CarSchema(BaseModel):
     categoria_id: Optional[int]
     marca_id: Optional[int]
     
+    marca: Optional[str]
+    categoria: Optional[str]
+    
     
     class Config:
         orm_mode = True

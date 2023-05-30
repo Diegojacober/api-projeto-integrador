@@ -1,11 +1,14 @@
 from typing import List
 
 from fastapi import APIRouter, status, Depends, HTTPException, Response
+from sqlalchemy import text
 
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 
 from models.car_model import CarModel 
+from models.categoria_model import CategoriaModel
+from models.marca_model import MarcaModel 
 from models.user_model import UserModel
 
 from schemas.car_schema import CarSchema
@@ -43,6 +46,17 @@ async def get_cars(db: AsyncSession = Depends(get_session)):
         return cars
     
 
+@router.get('/destaques',  status_code=status.HTTP_200_OK)
+async def get_destaques(db: AsyncSession = Depends(get_session)):
+    async with db as session:
+        query = select(CarModel).order_by(text("valor desc"))
+        result = await session.execute(query)
+        cars = result.scalars().unique().all()
+        
+        
+        return cars
+    
+
 # GET car
 @router.get('/{car_id}', response_model=CarSchema, status_code=status.HTTP_200_OK)
 async def get_artigo(car_id: int, db: AsyncSession = Depends(get_session)):
@@ -52,10 +66,26 @@ async def get_artigo(car_id: int, db: AsyncSession = Depends(get_session)):
         car: CarModel = result.scalars().unique().one_or_none()
         
         if car:
+
+            query = select(CategoriaModel).filter(CategoriaModel.id == car.categoria_id)
+            result = await session.execute(query)
+            categoria: CategoriaModel = result.scalars().unique().one_or_none()
+            
+            car.categoria = categoria.nome
+            
+            query = select(MarcaModel).filter(MarcaModel.id == car.marca_id)
+            result = await session.execute(query)
+            marca: MarcaModel = result.scalars().unique().one_or_none()
+            
+            car.marca = marca.nome
+            
+            
             return car
         else:
             raise HTTPException(detail='Car not found',
                                 status_code=status.HTTP_404_NOT_FOUND)
+            
+
             
 
 # PUT car
