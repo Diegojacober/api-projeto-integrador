@@ -1,17 +1,17 @@
 from typing import List
 import os
-from dotenv import load_dotenv
+import urllib
 
 from pydantic import BaseSettings
 
 from sqlalchemy.ext.declarative import declarative_base
 
 class Settings(BaseSettings):
-    load_dotenv()
-    __HOST = os.getenv('DB_HOST')
-    __USER = os.getenv('DB_USER')
-    __PASS = os.getenv('DB_PASS')
-    __DATABASE = os.getenv('DB_NAME')
+    
+    __HOST = os.environ.get('DB_HOST', 'localhost')
+    __USER = os.environ.get('DB_USER', 'root')
+    __PASS = os.environ.get('DB_PASS', '')
+    __DATABASE = os.environ.get('DB_NAME', 'integrador')
 
     API_V1_STR: str = '/api/v1'
     DB_URL: str = f"mysql+asyncmy://{__USER}:{__PASS}@{__HOST}/{__DATABASE}"
